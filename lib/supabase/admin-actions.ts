@@ -468,3 +468,39 @@ export async function deleteContactMessage(id: string) {
   return { success: true }
 }
 
+export async function deleteQuoteRequest(id: string) {
+  const serviceRoleClient = createServiceRoleClient()
+  if (!serviceRoleClient) {
+    return { success: false, error: 'Supabase admin client is not configured.' }
+  }
+
+  const { error } = await serviceRoleClient
+    .from('quote_requests')
+    .delete()
+    .eq('id', id)
+
+  if (error) {
+    return { success: false, error: error.message }
+  }
+
+  return { success: true }
+}
+
+export async function deleteServiceArea(id: string) {
+  const serviceRoleClient = createServiceRoleClient()
+  if (!serviceRoleClient) {
+    return { success: false, error: 'Supabase admin client is not configured.' }
+  }
+
+  const { error } = await serviceRoleClient
+    .from('service_areas')
+    .delete()
+    .eq('id', id)
+
+  if (error) {
+    return { success: false, error: error.message }
+  }
+
+  return { success: true }
+}
+

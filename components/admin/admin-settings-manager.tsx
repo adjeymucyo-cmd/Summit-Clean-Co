@@ -1,19 +1,87 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useTransition, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { updateAllSiteSettings, updateSiteSetting } from '@/lib/supabase/admin-actions'
 import type { SiteSettingRow } from '@/lib/types'
-import { CheckCircle2, AlertCircle, Save, Edit2 } from 'lucide-react'
+import { CheckCircle2, AlertCircle, Save, Edit2, Key, Mail, Eye, EyeOff } from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
 
 export function AdminSettingsManager({ initialSettings }: { initialSettings: SiteSettingRow[] }) {
   const [settings, setSettings] = useState(initialSettings)
   const [pending, startTransition] = useTransition()
   const [statusMsg, setStatusMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [modifiedKeys, setModifiedKeys] = useState<Set<string>>(new Set())
+
+  const [adminEmail, setAdminEmail] = useState('')
+  const [newEmail, setNewEmail] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [credPending, setCredPending] = useState(false)
+  const [credStatusMsg, setCredStatusMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+  const [showNewPassword, setShowNewPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+
+  useEffect(() => {
+    const supabase = createClient()
+    if (!supabase) return
+    supabase.auth.getUser().then(({ data }) => {
+      if (data?.user?.email) {
+        setAdminEmail(data.user.email)
+        setNewEmail(data.user.email)
+      }
+    })
+  }, [])
+
+  const handleUpdateCredentials = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setCredStatusMsg(null)
+
+    if (newPassword && newPassword !== confirmPassword) {
+      setCredStatusMsg({ type: 'error', text: 'Passwords do not match.' })
+      return
+    }
+
+    const supabase = createClient()
+    if (!supabase) {
+      setCredStatusMsg({ type: 'error', text: 'Supabase is not configured.' })
+      return
+    }
+
+    setCredPending(true)
+    try {
+      const updates: { email?: string; password?: string } = {}
+      if (newEmail && newEmail !== adminEmail) {
+        updates.email = newEmail
+      }
+      if (newPassword) {
+        updates.password = newPassword
+      }
+
+      if (Object.keys(updates).length === 0) {
+        setCredStatusMsg({ type: 'error', text: 'No changes provided.' })
+        setCredPending(false)
+        return
+      }
+
+      const { error } = await supabase.auth.updateUser(updates)
+      if (error) {
+        setCredStatusMsg({ type: 'error', text: error.message })
+      } else {
+        setCredStatusMsg({ type: 'success', text: 'Credentials updated successfully.' })
+        setAdminEmail(newEmail)
+        setNewPassword('')
+        setConfirmPassword('')
+      }
+    } catch (err: any) {
+      setCredStatusMsg({ type: 'error', text: err?.message || 'An error occurred while updating credentials.' })
+    } finally {
+      setCredPending(false)
+    }
+  }
 
   const showStatus = (type: 'success' | 'error', text: string) => {
     setStatusMsg({ type, text })
@@ -330,6 +398,108 @@ export function AdminSettingsManager({ initialSettings }: { initialSettings: Sit
             </div>
           ))}
         </div>
+      </div>
+
+      <div className="rounded-[1.5rem] border border-[#DCE5E1] bg-white p-4 shadow-sm sm:p-6 lg:p-8">
+        <h3 className="mb-5 flex items-center gap-2 text-base font-semibold text-[#14221F] sm:text-lg">
+          <Key className="h-4 w-4 text-[#0F5B4F]" />
+          Admin Credentials
+        </h3>
+        
+        {credStatusMsg && (
+          <div
+            className={`mb-5 flex items-center gap-3 rounded-xl border p-3 text-sm font-medium sm:p-4 ${
+              credStatusMsg.type === 'success'
+                ? 'border-[#A2EAD4] bg-[#EAFDF8] text-[#0F5B4F]'
+                : 'border-[#F8D2D0] bg-[#FDF3F2] text-[#B42318]'
+            }`}
+          >
+            {credStatusMsg.type === 'success' ? (
+              <CheckCircle2 className="h-5 w-5 shrink-0" />
+            ) : (
+              <AlertCircle className="h-5 w-5 shrink-0" />
+            )}
+            <span>{credStatusMsg.text}</span>
+          </div>
+        )}
+
+        <form onSubmit={handleUpdateCredentials} className="space-y-4">
+          <div className="grid gap-4 lg:grid-cols-2">
+            <div className="rounded-[1.1rem] border border-[#DCE5E1] bg-[#F8FBF6] p-3 transition-colors hover:border-[#0F5B4F] sm:p-4">
+              <Label className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#0F5B4F] sm:text-[11px] mb-2">
+                <Mail className="h-3.5 w-3.5" />
+                Change Admin Email
+              </Label>
+              <Input
+                type="email"
+                value={newEmail}
+                onChange={(e) => setNewEmail(e.target.value)}
+                placeholder="Email Address"
+                className="rounded-xl border-[#DCE5E1] bg-white focus-visible:ring-[#0F5B4F]/20"
+              />
+            </div>
+
+            <div className="rounded-[1.1rem] border border-[#DCE5E1] bg-[#F8FBF6] p-3 transition-colors hover:border-[#0F5B4F] sm:p-4">
+              <Label className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#0F5B4F] sm:text-[11px] mb-2">
+                <Key className="h-3.5 w-3.5" />
+                New Password (leave blank if unchanged)
+              </Label>
+              <div className="relative">
+                <Input
+                  type={showNewPassword ? 'text' : 'password'}
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="New Password"
+                  className="rounded-xl border-[#DCE5E1] bg-white pr-11 focus-visible:ring-[#0F5B4F]/20"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowNewPassword(!showNewPassword)}
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-[#60716D] transition hover:text-[#0F5B4F]"
+                  aria-label={showNewPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showNewPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                </button>
+              </div>
+            </div>
+
+            <div className="rounded-[1.1rem] border border-[#DCE5E1] bg-[#F8FBF6] p-3 transition-colors hover:border-[#0F5B4F] sm:p-4 lg:col-span-2">
+              <Label className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#0F5B4F] sm:text-[11px] mb-2">
+                <Key className="h-3.5 w-3.5" />
+                Confirm New Password
+              </Label>
+              <div className="relative">
+                <Input
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Confirm New Password"
+                  className="rounded-xl border-[#DCE5E1] bg-white pr-11 focus-visible:ring-[#0F5B4F]/20"
+                  disabled={!newPassword}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-[#60716D] transition hover:text-[#0F5B4F] disabled:opacity-50"
+                  aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                  disabled={!newPassword}
+                >
+                  {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-4 flex justify-end">
+            <Button
+              type="submit"
+              disabled={credPending}
+              className="rounded-full bg-[#0F5B4F] px-5 py-2 text-white hover:bg-[#093D35]"
+            >
+              Update Credentials
+            </Button>
+          </div>
+        </form>
       </div>
     </div>
   )

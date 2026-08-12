@@ -6,9 +6,9 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
-import { Edit3, Mail, Save, Upload } from 'lucide-react'
+import { Edit3, Mail, Save, Upload, Trash2 } from 'lucide-react'
 import { FileUpload } from '@/components/site/file-upload'
-import { insertService, deleteService, updateService, insertServiceArea, updateServiceArea, insertTestimonial, updateTestimonial, deleteTestimonial, updateQuoteStatus, updateQuoteNotes, updateQuoteDetails, uploadServiceAreaImage, uploadServiceImage } from '@/lib/supabase/admin-actions'
+import { insertService, deleteService, updateService, insertServiceArea, updateServiceArea, insertTestimonial, updateTestimonial, deleteTestimonial, updateQuoteStatus, updateQuoteNotes, updateQuoteDetails, uploadServiceAreaImage, uploadServiceImage, deleteQuoteRequest, deleteServiceArea } from '@/lib/supabase/admin-actions'
 
 export function ServiceManager({ initialServices }: { initialServices: Array<{ id: string; name: string; slug: string; short_description?: string | null; description?: string | null; image_url?: string | null; display_order?: number | null; is_active?: boolean | null }> }) {
   const [services, setServices] = useState(initialServices)
@@ -335,6 +335,18 @@ export function ServiceAreaManager({ initialAreas }: { initialAreas: Array<{ id:
     })
   }
 
+  async function handleDelete(id: string) {
+    if (!confirm('Are you sure you want to delete this service area?')) return
+    startTransition(async () => {
+      const result = await deleteServiceArea(id)
+      if (result.success) {
+        setAreas((current) => current.filter((a) => a.id !== id))
+      } else {
+        alert(result.error || 'Failed to delete service area.')
+      }
+    })
+  }
+
   return (
     <div className="space-y-6">
       <div className="rounded-[1.5rem] border border-[#DCE5E1] bg-[#F5F7F2] p-6">
@@ -415,8 +427,18 @@ export function ServiceAreaManager({ initialAreas }: { initialAreas: Array<{ id:
                     setFile(null)
                   }}
                   className="rounded-full border border-[#DCE5E1] bg-white p-2 text-[#0F5B4F] transition hover:border-[#0F5B4F] hover:bg-[#F5F7F2]"
+                  title="Edit service area"
                 >
                   <Edit3 className="h-4 w-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleDelete(area.id)}
+                  disabled={pending}
+                  className="rounded-full border border-red-200 bg-white p-2 text-red-600 transition hover:border-red-500 hover:bg-red-50"
+                  title="Delete service area"
+                >
+                  <Trash2 className="h-4 w-4" />
                 </button>
               </div>
             </div>
@@ -587,6 +609,18 @@ export function QuoteManager({ initialQuotes }: { initialQuotes: Array<{ id: str
     })
   }
 
+  async function deleteQuote(id: string) {
+    if (!confirm('Are you sure you want to delete this quote request?')) return
+    startTransition(async () => {
+      const result = await deleteQuoteRequest(id)
+      if (result.success) {
+        setQuotes((current) => current.filter((quote) => quote.id !== id))
+      } else {
+        alert(result.error || 'Failed to delete quote request.')
+      }
+    })
+  }
+
   const getMailtoLink = (quote: { full_name: string; email: string; details?: string | null }) => {
     const subject = encodeURIComponent('Summit Clean Co. - Quote confirmation')
     const body = encodeURIComponent(
@@ -621,6 +655,15 @@ export function QuoteManager({ initialQuotes }: { initialQuotes: Array<{ id: str
                 <option value="booked">Booked</option>
                 <option value="completed">Completed</option>
               </select>
+              <button
+                type="button"
+                onClick={() => deleteQuote(quote.id)}
+                disabled={pending}
+                className="rounded-full border border-red-200 bg-white p-2 text-red-600 transition hover:border-red-500 hover:bg-red-50"
+                title="Delete quote request"
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
             </div>
           </div>
           <div className="mt-4">
