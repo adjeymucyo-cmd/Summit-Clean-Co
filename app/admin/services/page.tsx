@@ -10,11 +10,13 @@ export default async function AdminServicesPage() {
   const services = await getServices()
 
   return (
-    <main className="p-8">
-      <div className="rounded-[2rem] border border-[#DCE5E1] bg-white p-8 shadow-sm">
-        <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[#0F5B4F]">Services</p>
-        <h1 className="mt-2 text-3xl font-semibold text-[#14221F]">Service catalog</h1>
-        <div className="mt-8">
+    <main>
+      <div className="rounded-[1.5rem] border border-[#DCE5E1] bg-white p-4 shadow-sm sm:p-6 lg:p-8">
+        <div className="flex flex-col gap-1">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[#0F5B4F] sm:text-xs">Services</p>
+          <h1 className="mt-1 text-2xl font-semibold text-[#14221F] sm:text-3xl">Service catalog</h1>
+        </div>
+        <div className="mt-5 sm:mt-6 lg:mt-8">
           <ServiceManager initialServices={services} />
         </div>
       </div>

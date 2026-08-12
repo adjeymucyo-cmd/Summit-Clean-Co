@@ -42,6 +42,33 @@ export async function deleteService(id: string) {
   return { success: true }
 }
 
+export async function updateService(id: string, input: { name?: string; slug?: string; short_description?: string | null; description?: string | null; image_url?: string | null; display_order?: number; is_active?: boolean }) {
+  const serviceRoleClient = createServiceRoleClient()
+  if (!serviceRoleClient) {
+    return { success: false, error: 'Supabase admin client is not configured.' }
+  }
+
+  const { error } = await serviceRoleClient
+    .from('services')
+    .update({
+      name: input.name,
+      slug: input.slug,
+      short_description: input.short_description,
+      description: input.description,
+      image_url: input.image_url,
+      display_order: input.display_order,
+      is_active: input.is_active,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', id)
+
+  if (error) {
+    return { success: false, error: error.message }
+  }
+
+  return { success: true }
+}
+
 export async function insertServiceArea(input: { name: string; slug: string; description?: string; image_url?: string; display_order?: number; is_active?: boolean }) {
   const serviceRoleClient = createServiceRoleClient()
   if (!serviceRoleClient) {

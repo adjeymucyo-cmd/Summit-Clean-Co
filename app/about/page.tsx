@@ -19,13 +19,13 @@ export default async function AboutPage() {
   const videoSettings = await getAboutVideoSettings()
 
   return (
-    <main className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+    <main className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
       {/* Hero Section */}
-      <div className="grid gap-12 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
+      <div className="grid gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-center lg:gap-12">
         <AnimatedSection className="space-y-6">
           <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[#0F5B4F]">About</p>
-          <h1 className="mt-4 text-4xl font-semibold tracking-tight text-[#14221F] sm:text-5xl">Summit Clean Co. delivers reliable cleaning for homes and workplaces across the Fraser Valley.</h1>
-          <div className="space-y-6 text-lg leading-8 text-[#60716D]">
+          <h1 className="mt-4 text-3xl font-semibold tracking-tight text-[#14221F] sm:text-4xl lg:text-5xl">Summit Clean Co. delivers reliable cleaning for homes and workplaces across the Fraser Valley.</h1>
+          <div className="space-y-5 text-base leading-7 text-[#60716D] sm:text-lg sm:leading-8">
             <p>Our goal is simple: make every space feel fresh, healthy, and easy to enjoy. Whether you need a one-time deep clean, regular home maintenance, or office sanitization, we focus on the results that matter most to you.</p>
             <p>How it works: you tell us the service you need, we tailor a cleaning plan to your property type and schedule, and our professional team arrives with the right products and attention to detail. We handle kitchens, bathrooms, offices, shared spaces, and every area in between.</p>
             <p>Why choose Summit Clean Co.? Because we combine local experience, friendly communication, and consistent quality. Our cleaners are trained, vetted, and prepared to treat your home or business respectfully, with extra care for the areas that make the biggest difference.</p>
@@ -34,7 +34,7 @@ export default async function AboutPage() {
           </div>
         </AnimatedSection>
         <AnimatedSection className="overflow-hidden rounded-[2rem]">
-          <img src="/images/residential-custom.jpg" alt="Cleaning professional at work" className="h-[360px] w-full object-cover" />
+          <img src="/images/residential-custom.jpg" alt="Cleaning professional at work" className="h-[260px] w-full object-cover sm:h-[320px] lg:h-[360px]" />
         </AnimatedSection>
       </div>
 
@@ -54,7 +54,7 @@ export default async function AboutPage() {
           <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[#0F5B4F]">Our Values</p>
           <h2 className="mt-3 text-3xl font-semibold text-[#14221F]">What guides our cleaning service</h2>
         </div>
-        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
           {values.map((value, index) => {
             const Icon = value.icon
             return (

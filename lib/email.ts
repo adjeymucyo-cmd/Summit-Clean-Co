@@ -12,7 +12,7 @@
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY
 const ADMIN_EMAIL = 'admin@summitclean.com'
-const FROM_EMAIL = process.env.FROM_EMAIL || 'noreply@summitclean.com'
+const FROM_EMAIL = process.env.FROM_EMAIL || 'onboarding@resend.dev'
 
 export async function sendReplyEmail(
   customerEmail: string,
@@ -20,10 +20,13 @@ export async function sendReplyEmail(
   originalMessage: string,
   replyText: string
 ) {
-  // If no API key, skip email and just return success
   if (!RESEND_API_KEY) {
-    console.warn('RESEND_API_KEY not configured. Email not sent.')
-    return { success: true, warning: 'Email service not configured' }
+    console.warn('[EMAIL] RESEND_API_KEY not configured. Email not sent.')
+    return {
+      success: false,
+      error: 'RESEND_API_KEY is missing. Add the API key in .env.local to enable customer email delivery.',
+      stage: 'missing_api_key',
+    }
   }
 
   try {
@@ -79,7 +82,7 @@ export async function sendReplyEmail(
         to: customerEmail,
         subject: 'Re: Your message to Summit Clean Co.',
         html: emailHtml,
-        reply_to: ADMIN_EMAIL,
+        reply_to: process.env.FROM_EMAIL || FROM_EMAIL,
       }),
     })
 

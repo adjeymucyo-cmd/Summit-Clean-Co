@@ -52,19 +52,17 @@ export default async function HomePage() {
         <div className="absolute inset-0 bg-[#031B17]/95" />
         <div className="absolute left-10 top-20 h-64 w-64 rounded-full bg-[#0F5B4F]/25 blur-3xl" />
         <div className="absolute right-0 top-1/3 h-80 w-80 rounded-full bg-[#0F5B4F]/15 blur-3xl" />
-        <div className="relative mx-auto grid max-w-7xl gap-12 px-4 py-24 sm:px-6 lg:grid-cols-[1.1fr_0.9fr] lg:px-8 lg:py-32">
+        <div className="relative mx-auto grid max-w-7xl gap-8 px-4 py-14 sm:px-6 lg:grid-cols-[1.1fr_0.9fr] lg:gap-12 lg:px-8 lg:py-32">
           <div className="max-w-2xl">
-            <p className="text-sm font-semibold uppercase tracking-[0.35em] text-[#DFEEE8]">Residential, office & commercial cleaning</p>
-            <h1 className="mt-6 text-4xl font-semibold leading-tight sm:text-5xl lg:text-6xl">A cleaner space that feels calm, polished, and inviting.</h1>
-            <p className="mt-6 text-lg leading-8 text-[#DFEEE8]">{site.hero_description ?? 'Professional, reliable cleaning services for homes, offices, kitchens, rooms, and commercial spaces across Abbotsford and the Fraser Valley.'}</p>
-
-            
+            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.28em] text-[#DFEEE8] sm:text-sm">Residential, office & commercial cleaning</p>
+            <h1 className="mt-6 text-3xl font-semibold leading-tight sm:text-4xl lg:text-6xl">A cleaner space that feels calm, polished, and inviting.</h1>
+            <p className="mt-6 text-base leading-7 text-[#DFEEE8] sm:text-lg sm:leading-8">{site.hero_description ?? 'Professional, reliable cleaning services for homes, offices, kitchens, rooms, and commercial spaces across Abbotsford and the Fraser Valley.'}</p>
 
             <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-              <Link href="/quote" className="inline-flex items-center justify-center rounded-full bg-[#E7C858] px-6 py-3 text-[#14221F] shadow-lg shadow-[#E7C858]/20 transition hover:bg-[#e0c04d]">
+              <Link href="/quote" className="inline-flex items-center justify-center rounded-full bg-[#E7C858] px-5 py-3 text-sm font-semibold text-[#14221F] shadow-lg shadow-[#E7C858]/20 transition hover:bg-[#e0c04d] sm:px-6">
                 Get a Free Quote
               </Link>
-              <a href="tel:+17785483365" className="inline-flex items-center justify-center rounded-full border border-white/30 bg-white/10 px-6 py-3 text-white transition hover:bg-white/20">
+              <a href="tel:+17785483365" className="inline-flex items-center justify-center gap-2 rounded-full border border-white/30 bg-white/10 px-5 py-3 text-sm font-medium text-white transition hover:bg-white/20 sm:px-6">
                 <PhoneCall className="h-4 w-4" />
                 <span>Call 778-548-3365</span>
               </a>
@@ -98,11 +96,11 @@ export default async function HomePage() {
 
       <section className="bg-[#EFF8F1] py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid gap-10 rounded-[2rem] border border-[#DCE5E1] bg-white p-8 shadow-[0_14px_40px_rgba(15,91,79,0.06)] lg:grid-cols-[1.1fr_0.9fr]">
+          <div className="grid gap-8 rounded-[2rem] border border-[#DCE5E1] bg-white p-5 shadow-[0_14px_40px_rgba(15,91,79,0.06)] sm:p-8 lg:grid-cols-[1.1fr_0.9fr] lg:gap-10">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.28em] text-[#0F5B4F]">How it works</p>
-              <h2 className="mt-4 text-3xl font-semibold tracking-tight text-[#14221F] sm:text-4xl">Three easy steps to a spotless space.</h2>
-              <p className="mt-5 text-lg leading-8 text-[#60716D]">Book your service, let our professional team clean carefully, then enjoy a refreshed and healthier home or workplace.</p>
+              <h2 className="mt-4 text-2xl font-semibold tracking-tight text-[#14221F] sm:text-3xl lg:text-4xl">Three easy steps to a spotless space.</h2>
+              <p className="mt-5 text-base leading-7 text-[#60716D] sm:text-lg sm:leading-8">Book your service, let our professional team clean carefully, then enjoy a refreshed and healthier home or workplace.</p>
             </div>
             <div className="grid gap-4 sm:grid-cols-3">
               {[
@@ -120,9 +118,9 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+      <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
         <SectionHeading eyebrow="Services" title="Cleaning services built around your needs" description="From routine home cleaning to detailed commercial work, Summit Clean Co. helps keep your space fresh, comfortable, and ready for what comes next." />
-        <div className="mt-12 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+        <div className="mt-10 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
           {(services as ServiceRow[]).map((service, index) => (
             <AnimatedSection key={service.id} delay={index * 0.06}>
               <article className="overflow-hidden rounded-[1.5rem] border border-[#DCE5E1] bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-[0_18px_40px_rgba(15,91,79,0.12)]">
@@ -148,15 +146,15 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="bg-white py-20">
-        <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:px-8">
+      <section className="bg-white py-14 sm:py-16 lg:py-20">
+        <div className="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:gap-10 lg:px-8">
           <div className="overflow-hidden rounded-[2rem]">
-            <img src="/images/why-choose-us-custom.png" alt="Professional cleaning team" className="h-full min-h-[320px] w-full object-cover" />
+            <img src="/images/why-choose-us-custom.png" alt="Professional cleaning team" className="h-full min-h-[260px] w-full object-cover sm:min-h-[320px]" />
           </div>
           <AnimatedSection className="flex flex-col justify-center">
             <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[#0F5B4F]">Why choose us</p>
-            <h2 className="mt-4 text-3xl font-semibold tracking-tight text-[#14221F] sm:text-4xl">A higher standard of clean.</h2>
-            <p className="mt-6 text-lg leading-8 text-[#60716D]">We believe a clean space should feel noticeably better. Summit Clean Co. is focused on professional service, reliability, attention to detail, and customer satisfaction.</p>
+            <h2 className="mt-4 text-2xl font-semibold tracking-tight text-[#14221F] sm:text-3xl lg:text-4xl">A higher standard of clean.</h2>
+            <p className="mt-6 text-base leading-7 text-[#60716D] sm:text-lg sm:leading-8">We believe a clean space should feel noticeably better. Summit Clean Co. is focused on professional service, reliability, attention to detail, and customer satisfaction.</p>
             <ul className="mt-8 space-y-4 text-sm leading-7 text-[#14221F]">
               {['Professional and dependable service', 'Detail-focused cleaning', 'Flexible residential and commercial options', 'Local service in Abbotsford and the Fraser Valley'].map((item) => (
                 <li key={item} className="flex items-center gap-3"><ShieldCheck className="h-5 w-5 text-[#0F5B4F]" /> {item}</li>
@@ -169,9 +167,9 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+      <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
         <SectionHeading eyebrow="Testimonials" title="Trusted by local clients" description="Inspiration from real customer experiences and a steady commitment to quality service." />
-        <div className="mt-12 grid gap-6 lg:grid-cols-3">
+        <div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
           {(testimonials as TestimonialRow[]).map((testimonial, index) => (
             <AnimatedSection key={testimonial.id} delay={index * 0.08}>
               <TestimonialCard testimonial={testimonial} />

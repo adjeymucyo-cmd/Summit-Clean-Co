@@ -8,7 +8,7 @@ import { Select } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { Edit3, Mail, Save, Upload } from 'lucide-react'
 import { FileUpload } from '@/components/site/file-upload'
-import { insertService, deleteService, insertServiceArea, updateServiceArea, insertTestimonial, updateTestimonial, deleteTestimonial, updateQuoteStatus, updateQuoteNotes, updateQuoteDetails, uploadServiceAreaImage, uploadServiceImage } from '@/lib/supabase/admin-actions'
+import { insertService, deleteService, updateService, insertServiceArea, updateServiceArea, insertTestimonial, updateTestimonial, deleteTestimonial, updateQuoteStatus, updateQuoteNotes, updateQuoteDetails, uploadServiceAreaImage, uploadServiceImage } from '@/lib/supabase/admin-actions'
 
 export function ServiceManager({ initialServices }: { initialServices: Array<{ id: string; name: string; slug: string; short_description?: string | null; description?: string | null; image_url?: string | null; display_order?: number | null; is_active?: boolean | null }> }) {
   const [services, setServices] = useState(initialServices)
@@ -17,6 +17,8 @@ export function ServiceManager({ initialServices }: { initialServices: Array<{ i
   const [file, setFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [lastDeletedService, setLastDeletedService] = useState<{ id: string; name: string; slug: string; short_description?: string | null; description?: string | null; image_url?: string | null; display_order?: number | null; is_active?: boolean | null } | null>(null)
+  const [editingServiceId, setEditingServiceId] = useState<string | null>(null)
+  const [editForm, setEditForm] = useState({ name: '', short_description: '', description: '' })
 
   async function submit(action: 'create' | 'edit' | 'delete', id?: string) {
     const payload = new FormData()
@@ -72,6 +74,40 @@ export function ServiceManager({ initialServices }: { initialServices: Array<{ i
           setLastDeletedService(deleted)
           setServices((current) => current.filter((item) => item.id !== id))
         }
+      }
+    })
+  }
+
+  const startEditing = (service: { id: string; name: string; short_description?: string | null; description?: string | null }) => {
+    setEditingServiceId(service.id)
+    setEditForm({
+      name: service.name,
+      short_description: service.short_description ?? '',
+      description: service.description ?? '',
+    })
+  }
+
+  const cancelEditing = () => {
+    setEditingServiceId(null)
+    setEditForm({ name: '', short_description: '', description: '' })
+  }
+
+  const saveServiceEdit = (serviceId: string) => {
+    startTransition(async () => {
+      const result = await updateService(serviceId, {
+        name: editForm.name,
+        short_description: editForm.short_description || null,
+        description: editForm.description || null,
+      })
+      if (result.success) {
+        setServices((current) =>
+          current.map((s) =>
+            s.id === serviceId
+              ? { ...s, name: editForm.name, short_description: editForm.short_description, description: editForm.description }
+              : s
+          )
+        )
+        cancelEditing()
       }
     })
   }
@@ -184,14 +220,44 @@ export function ServiceManager({ initialServices }: { initialServices: Array<{ i
         {services.map((service) => (
           <div key={service.id} className="rounded-[1.25rem] border border-[#DCE5E1] p-5">
             <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
-              <div>
+              <div className="flex-1">
                 <p className="font-semibold text-[#14221F]">{service.name}</p>
                 <p className="mt-1 text-sm text-[#60716D]">{service.short_description}</p>
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2 sm:whitespace-nowrap">
+                <Button variant="outline" size="sm" onClick={() => startEditing(service)} disabled={pending} className="gap-2">
+                  <Edit3 className="h-4 w-4" /> Edit
+                </Button>
                 <Button variant="outline" size="sm" onClick={() => submit('delete', service.id)} disabled={pending}>Delete</Button>
               </div>
             </div>
+            {editingServiceId === service.id && (
+              <div className="mt-4 space-y-3 rounded-[1.5rem] border border-[#DCE5E1] bg-[#F5F7F2] p-4">
+                <Label>Edit service details</Label>
+                <div className="space-y-3">
+                  <div>
+                    <Label className="text-xs">Name</Label>
+                    <Input value={editForm.name} onChange={(e) => setEditForm((current) => ({ ...current, name: e.target.value }))} placeholder="Service name" />
+                  </div>
+                  <div>
+                    <Label className="text-xs">Short description</Label>
+                    <Input value={editForm.short_description} onChange={(e) => setEditForm((current) => ({ ...current, short_description: e.target.value }))} placeholder="Short description" />
+                  </div>
+                  <div>
+                    <Label className="text-xs">Full description</Label>
+                    <Textarea value={editForm.description} onChange={(e) => setEditForm((current) => ({ ...current, description: e.target.value }))} rows={4} placeholder="Full service description..." />
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <Button variant="outline" size="sm" onClick={cancelEditing} disabled={pending}>
+                    Cancel
+                  </Button>
+                  <Button size="sm" onClick={() => saveServiceEdit(service.id)} disabled={pending}>
+                    <Save className="mr-2 h-4 w-4" /> Save details
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
         ))}
       </div>
@@ -558,22 +624,27 @@ export function QuoteManager({ initialQuotes }: { initialQuotes: Array<{ id: str
             </div>
           </div>
           <div className="mt-4">
-            <div className="flex items-start justify-between gap-3">
-              <p className="text-sm leading-7 text-[#60716D]">
-                {quote.details ?? 'No additional details provided.'}
-              </p>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div className="flex-1">
+                <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[#0F5B4F] mb-2">Quote Details</p>
+                <p className="text-sm leading-7 text-[#60716D]">
+                  {quote.details ?? 'No additional details provided.'}
+                </p>
+              </div>
               <button
                 type="button"
                 onClick={() => startEditing(quote)}
-                className="rounded-full border border-[#DCE5E1] bg-white p-2 text-[#0F5B4F] transition hover:border-[#0F5B4F] hover:bg-[#F5F7F2]"
+                className="inline-flex items-center justify-center gap-2 rounded-full border border-[#0F5B4F] bg-white px-3 py-2 text-sm font-medium text-[#0F5B4F] transition hover:bg-[#DFEEE8] sm:whitespace-nowrap"
+                title="Edit quote details"
               >
                 <Edit3 className="h-4 w-4" />
+                <span>Edit</span>
               </button>
             </div>
             {editingQuoteId === quote.id && (
               <div className="mt-4 space-y-3 rounded-[1.5rem] border border-[#DCE5E1] bg-[#F5F7F2] p-4">
-                <Label>Editable quote details</Label>
-                <Textarea value={editingDetails} onChange={(event) => setEditingDetails(event.target.value)} rows={5} />
+                <Label>Edit quote details</Label>
+                <Textarea value={editingDetails} onChange={(event) => setEditingDetails(event.target.value)} rows={5} placeholder="Enter quote details..." />
                 <div className="flex flex-wrap gap-2">
                   <Button variant="outline" size="sm" onClick={cancelEditing} disabled={pending}>
                     Cancel
@@ -587,11 +658,11 @@ export function QuoteManager({ initialQuotes }: { initialQuotes: Array<{ id: str
           </div>
           <div className="mt-4">
             <Label>Admin notes</Label>
-            <div className="mt-2 flex items-start gap-3">
+            <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-end">
               <Textarea defaultValue={quote.admin_notes ?? ''} onBlur={(event) => updateNote(quote.id, event.target.value)} className="flex-1" />
-              <a href={getMailtoLink(quote)} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-full bg-[#0F5B4F] px-4 py-3 text-white hover:bg-[#093D35] transition-colors whitespace-nowrap">
-                <Mail className="h-4 w-4" />
-                <span>Send confirmation</span>
+              <a href={getMailtoLink(quote)} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-1.5 rounded-full bg-[#0F5B4F] px-3 py-2 text-sm font-medium text-white hover:bg-[#093D35] transition-colors whitespace-nowrap sm:px-4 sm:py-2.5">
+                <Mail className="h-3.5 w-3.5" />
+                <span>Send</span>
               </a>
             </div>
           </div>

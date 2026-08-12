@@ -10,15 +10,15 @@ export default async function AdminSettingsPage() {
   const settings = await getSiteSettings()
 
   return (
-    <main className="p-8">
-      <div className="rounded-[2rem] border border-[#DCE5E1] bg-white p-8 shadow-sm">
-        <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[#0F5B4F]">Settings</p>
-        <h1 className="mt-2 text-3xl font-semibold text-[#14221F]">Business settings</h1>
-        <p className="mt-3 text-sm leading-7 text-[#60716D] max-w-3xl">
+    <main>
+      <div className="rounded-[1.5rem] border border-[#DCE5E1] bg-white p-4 shadow-sm sm:p-6 lg:p-8">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[#0F5B4F] sm:text-xs">Settings</p>
+        <h1 className="mt-2 text-2xl font-semibold text-[#14221F] sm:text-3xl">Business settings</h1>
+        <p className="mt-3 max-w-3xl text-sm leading-6 text-[#60716D] sm:leading-7">
           Update company details, hero copy, and service area information that appears across the website.
         </p>
 
-        <div className="mt-8">
+        <div className="mt-6 sm:mt-8">
           <AdminSettingsManager initialSettings={settings} />
         </div>
       </div>

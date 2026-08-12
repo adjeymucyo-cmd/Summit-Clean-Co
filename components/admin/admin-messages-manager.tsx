@@ -117,7 +117,14 @@ export function AdminMessagesManager({ initialMessages }: AdminMessagesManagerPr
         setMessages(updated)
         setSelectedMessage(prev => prev ? { ...prev, reply_text: replyText, status: 'replied' } : null)
         setReplyText('')
-        showStatus('success', `✅ Reply saved to database. Email status: ${result.emailStatus || 'pending'}.`)
+
+        if (result.emailStatus && String(result.emailStatus).toLowerCase().includes('failed')) {
+          showStatus('error', `⚠️ Reply saved to database, but email delivery failed: ${result.emailStatus}`)
+        } else if (result.emailStatus === 'sent') {
+          showStatus('success', '✅ Reply saved and delivered to the customer successfully.')
+        } else {
+          showStatus('success', '✅ Reply saved to database.')
+        }
       } else {
         showStatus('error', `Error at stage "${result.stage}": ${result.error}`)
       }

@@ -71,6 +71,7 @@ create table if not exists contact_messages (
   message text not null,
   status text default 'new' check (status in ('new', 'opened', 'replied')),
   reply_text text,
+  replied_at timestamptz,
   created_at timestamptz default now(),
   updated_at timestamptz default now()
 );
@@ -117,6 +118,12 @@ create policy quotes_public_insert on quote_requests for insert with check (true
 
 drop policy if exists contact_public_insert on contact_messages;
 create policy contact_public_insert on contact_messages for insert with check (true);
+
+drop policy if exists contact_authenticated_read on contact_messages;
+create policy contact_authenticated_read on contact_messages for select using (auth.role() = 'authenticated');
+
+drop policy if exists contact_authenticated_update on contact_messages;
+create policy contact_authenticated_update on contact_messages for update using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
 
 drop policy if exists settings_public_read on site_settings;
 create policy settings_public_read on site_settings for select using (true);

@@ -49,36 +49,41 @@ export default async function AdminDashboardPage() {
   ]
 
   return (
-    <main className="space-y-8 p-8">
-      <div className="rounded-[2rem] border border-[#DCE5E1] bg-white p-8 shadow-sm">
-        <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[#0F5B4F]">Overview</p>
-        <h1 className="mt-3 text-3xl font-semibold text-[#14221F]">Welcome back, {user.email}</h1>
-        <p className="mt-3 text-sm leading-7 text-[#60716D]">You can manage quote requests, services, and content from this dashboard.</p>
-      </div>
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+    <main className="space-y-6 sm:space-y-8">
+      <section className="rounded-[1.5rem] border border-[#DCE5E1] bg-white p-4 shadow-sm sm:p-6 lg:p-8">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[#0F5B4F] sm:text-xs">Overview</p>
+        <h1 className="mt-3 text-2xl font-semibold text-[#14221F] sm:text-3xl">Welcome back, {user.email}</h1>
+        <p className="mt-3 text-sm leading-6 text-[#60716D] sm:leading-7">You can manage quote requests, services, and content from this dashboard.</p>
+      </section>
+
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {stats.map((stat) => {
           const Icon = stat.icon
           return (
-            <div key={stat.title} className="rounded-[1.5rem] border border-[#DCE5E1] bg-white p-6 shadow-sm">
-              <div className="flex items-center justify-between">
-                <p className="text-sm font-semibold text-[#60716D]">{stat.title}</p>
-                <div className="rounded-full bg-[#DFEEE8] p-2 text-[#0F5B4F]">
+            <div key={stat.title} className="rounded-[1.25rem] border border-[#DCE5E1] bg-white p-4 shadow-sm sm:p-5">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#60716D] sm:text-sm">{stat.title}</p>
+                <div className="rounded-full bg-[#DFEEE8] p-2.5 text-[#0F5B4F]">
                   <Icon className="h-4 w-4" />
                 </div>
               </div>
-              <p className="mt-6 text-3xl font-semibold text-[#14221F]">{stat.value}</p>
+              <p className="mt-5 text-2xl font-semibold text-[#14221F] sm:text-3xl">{stat.value}</p>
             </div>
           )
         })}
-      </div>
-      <div className="rounded-[2rem] border border-[#DCE5E1] bg-white p-8 shadow-sm">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-[#14221F]">Recent quote requests</h2>
-          <Link href="/admin/quotes" className="text-sm font-semibold text-[#0F5B4F]">View all <ArrowRight className="ml-1 inline h-4 w-4" /></Link>
+      </section>
+
+      <section className="rounded-[1.5rem] border border-[#DCE5E1] bg-white p-4 shadow-sm sm:p-6 lg:p-8">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <h2 className="text-lg font-semibold text-[#14221F] sm:text-xl">Recent quote requests</h2>
+          <Link href="/admin/quotes" className="inline-flex items-center text-sm font-semibold text-[#0F5B4F]">
+            View all <ArrowRight className="ml-1 inline h-4 w-4" />
+          </Link>
         </div>
-        <div className="mt-6 space-y-4">
+
+        <div className="mt-5 space-y-3">
           {overview.recentQuotes.map((quote) => (
-            <div key={quote.id} className="flex flex-col justify-between gap-2 rounded-xl border border-[#DCE5E1] p-4 sm:flex-row sm:items-center">
+            <div key={quote.id} className="flex flex-col gap-2 rounded-xl border border-[#DCE5E1] p-3 sm:flex-row sm:items-center sm:justify-between sm:p-4">
               <div>
                 <p className="font-semibold text-[#14221F]">{quote.full_name}</p>
                 <p className="text-sm text-[#60716D]">{quote.email}</p>
@@ -87,7 +92,7 @@ export default async function AdminDashboardPage() {
             </div>
           ))}
         </div>
-      </div>
+      </section>
     </main>
   )
 }

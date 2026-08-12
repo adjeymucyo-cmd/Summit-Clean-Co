@@ -10,15 +10,13 @@ export default async function AdminQuotesPage() {
   const quotes = await getAllQuotes()
 
   return (
-    <main className="p-8">
-      <div className="rounded-[2rem] border border-[#DCE5E1] bg-white p-8 shadow-sm">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[#0F5B4F]">Quotes</p>
-            <h1 className="mt-2 text-3xl font-semibold text-[#14221F]">Quote requests</h1>
-          </div>
+    <main>
+      <div className="rounded-[1.5rem] border border-[#DCE5E1] bg-white p-4 shadow-sm sm:p-6 lg:p-8">
+        <div className="flex flex-col gap-1">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[#0F5B4F] sm:text-xs">Quotes</p>
+          <h1 className="mt-1 text-2xl font-semibold text-[#14221F] sm:text-3xl">Quote requests</h1>
         </div>
-        <div className="mt-8">
+        <div className="mt-5 sm:mt-6 lg:mt-8">
           <QuoteManager initialQuotes={quotes} />
         </div>
       </div>

@@ -214,10 +214,16 @@
     @apply bg-background text-foreground;
     font-family: 'Inter', sans-serif;
     min-height: 100vh;
+    overflow-x: hidden;
     background-image: radial-gradient(circle at top left, rgba(31,119,104,0.24), transparent 24%),
       linear-gradient(180deg, #e8fbf0 0%, #d3f1df 100%);
     transition: background-color 0.35s ease, color 0.35s ease;
     animation: theme-fade-in 0.75s ease both;
+  }
+  img,
+  video {
+    display: block;
+    max-width: 100%;
   }
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Poppins', sans-serif;
