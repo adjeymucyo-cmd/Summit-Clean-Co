@@ -26,14 +26,27 @@ const fallbackServices: ServiceRow[] = [
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   },
+  {
+    id: 'service-office',
+    name: 'Office Cleaning',
+    slug: 'office-cleaning',
+    short_description: 'A cleaner, healthier office space that helps teams stay productive.',
+    description: 'Our office cleaning service focuses on desks, meeting rooms, shared spaces, and high-touch surfaces to keep your workplace safe and polished.',
+    image_url: '/images/office-custom.jpg',
+    display_order: 3,
+    is_active: true,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
 ]
 
 const fallbackServiceAreas: ServiceAreaRow[] = [
   {
-    id: 'area-abbotsford',
-    name: 'Abbotsford',
-    slug: 'abbotsford',
-    description: 'Serving homeowners and businesses across Abbotsford with dependable cleaning support.',
+    id: 'area-downtown',
+    name: 'Downtown',
+    slug: 'downtown',
+    description: 'Full-service residential and commercial cleaning throughout the downtown core.',
+    image_url: null,
     is_active: true,
     display_order: 1,
     created_at: new Date().toISOString(),
@@ -44,8 +57,75 @@ const fallbackServiceAreas: ServiceAreaRow[] = [
     name: 'Fraser Valley',
     slug: 'fraser-valley',
     description: 'Flexible service coverage across the broader Fraser Valley region.',
+    image_url: null,
     is_active: true,
     display_order: 2,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+  {
+    id: 'area-north-hills',
+    name: 'North Hills',
+    slug: 'north-hills',
+    description: 'Trusted home cleaning for the North Hills neighborhoods.',
+    image_url: null,
+    is_active: true,
+    display_order: 3,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+  {
+    id: 'area-surrounding-communities',
+    name: 'Surrounding Communities',
+    slug: 'surrounding-communities',
+    description: 'Additional local service coverage for nearby communities and neighborhoods.',
+    image_url: null,
+    is_active: true,
+    display_order: 4,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+  {
+    id: 'area-westgate',
+    name: 'Westgate',
+    slug: 'westgate',
+    description: 'Serving Westgate homes and businesses with dependable care.',
+    image_url: null,
+    is_active: true,
+    display_order: 5,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+  {
+    id: 'area-summit-valley',
+    name: 'Summit Valley',
+    slug: 'summit-valley',
+    description: 'Our home base — comprehensive cleaning across Summit Valley.',
+    image_url: null,
+    is_active: true,
+    display_order: 6,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+  {
+    id: 'area-riverside',
+    name: 'Riverside',
+    slug: 'riverside',
+    description: 'Reliable cleaning services across the Riverside district.',
+    image_url: null,
+    is_active: true,
+    display_order: 7,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+  {
+    id: 'area-eastpoint',
+    name: 'Eastpoint',
+    slug: 'eastpoint',
+    description: 'Professional cleaning coverage for the Eastpoint area.',
+    image_url: null,
+    is_active: true,
+    display_order: 8,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   },
@@ -65,10 +145,13 @@ const fallbackTestimonials: TestimonialRow[] = [
 ]
 
 const fallbackSettings: SiteSettingRow[] = [
+  { key: 'company_name', value: 'Summit Clean Co.', updated_at: new Date().toISOString() },
   { key: 'business_name', value: 'Summit Clean Co.', updated_at: new Date().toISOString() },
-  { key: 'phone', value: '778-548-3365', updated_at: new Date().toISOString() },
-  { key: 'email', value: 'mahordesire767@gmail.com', updated_at: new Date().toISOString() },
-  { key: 'tagline', value: 'Clean Spaces. Better Places.', updated_at: new Date().toISOString() },
+  { key: 'phone', value: '(555) 018-2200', updated_at: new Date().toISOString() },
+  { key: 'email', value: 'hello@summitcleanco.com', updated_at: new Date().toISOString() },
+  { key: 'address', value: '128 Summit Ave, Suite 4, Summit Valley', updated_at: new Date().toISOString() },
+  { key: 'hours', value: 'Mon–Fri 8am–6pm, Sat 9am–3pm', updated_at: new Date().toISOString() },
+  { key: 'tagline', value: 'Spotless spaces, effortless living.', updated_at: new Date().toISOString() },
   { key: 'hero_heading', value: 'Clean Spaces. Better Places.', updated_at: new Date().toISOString() },
   { key: 'hero_description', value: 'Professional cleaning for homes and businesses across Abbotsford and the Fraser Valley.', updated_at: new Date().toISOString() },
   { key: 'service_area', value: 'Abbotsford & surrounding Fraser Valley areas', updated_at: new Date().toISOString() },
@@ -85,6 +168,19 @@ export async function getServices() {
     return fallbackServices
   }
   return (data as ServiceRow[]) ?? fallbackServices
+}
+
+export async function getServiceBySlug(slug: string) {
+  const supabase = await createServerSupabaseClient()
+  if (!supabase) {
+    return fallbackServices.find(s => s.slug === slug) ?? null
+  }
+
+  const { data, error } = await supabase.from('services').select('*').eq('slug', slug).eq('is_active', true).maybeSingle()
+  if (error || !data) {
+    return fallbackServices.find(s => s.slug === slug) ?? null
+  }
+  return data as ServiceRow
 }
 
 export async function getServiceAreas() {

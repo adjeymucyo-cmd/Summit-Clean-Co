@@ -1,13 +1,13 @@
 import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 import { AnimatedSection } from '@/components/site/animated-section'
+import { ServiceCard } from '@/components/site/service-card'
 import { getServices } from '@/lib/supabase/data'
 import type { ServiceRow } from '@/lib/types'
 
 export const metadata = {
   title: 'Services | Summit Clean Co.',
-  description: 'Explore residential and commercial cleaning services in Abbotsford and the Fraser Valley.',
+  description: 'Explore residential, office, and commercial cleaning services in Abbotsford and the Fraser Valley.',
 }
 
 const serviceImageRules: [RegExp, string][] = [
@@ -27,6 +27,20 @@ const getServiceImage = (serviceName: string) => {
   return serviceImageRules.find(([rule]) => rule.test(normalized))?.[1]
 }
 
+const getServiceName = (service: ServiceRow) => {
+  if (service.slug === 'office-cleaning') {
+    return 'Office Cleaning'
+  }
+  return service.name
+}
+
+const getServiceDescription = (service: ServiceRow) => {
+  if (service.slug === 'office-cleaning') {
+    return service.description ?? service.short_description ?? 'Reliable office cleaning for desks, meeting rooms, and shared spaces.'
+  }
+  return service.description ?? service.short_description ?? ''
+}
+
 const fallbackServiceImages = [
   'https://images.pexels.com/photos/4095884/pexels-photo-4095884.jpeg?auto=compress&cs=tinysrgb&w=1200',
   '/images/residential-custom.jpg',
@@ -34,40 +48,66 @@ const fallbackServiceImages = [
   'https://images.pexels.com/photos/3958210/pexels-photo-3958210.jpeg?auto=compress&cs=tinysrgb&w=1200',
 ]
 
-export default async function ServicesPage() {
-  const services = await getServices()
+export default async function ServicesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>
+}) {
+  const resolvedParams = await searchParams
+  const q = resolvedParams?.q?.trim()?.toLowerCase() || ''
+
+  const allServices = await getServices()
+  const services = q
+    ? (allServices as ServiceRow[]).filter(
+        (service) =>
+          service.name.toLowerCase().includes(q) ||
+          (service.description ?? service.short_description ?? '')
+            .toLowerCase()
+            .includes(q)
+      )
+    : (allServices as ServiceRow[])
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
       <div className="max-w-3xl">
-        <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[#0F5B4F]">Services</p>
-        <h1 className="mt-4 text-4xl font-semibold tracking-tight text-[#14221F] sm:text-5xl">Premium cleaning for every space.</h1>
-        <p className="mt-6 text-lg leading-8 text-[#60716D]">Every service is tailored to meet your property, schedule, and standard of care.</p>
+        <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[#0F5B4F]">
+          {q ? `Search Results for "${q}"` : 'Services'}
+        </p>
+        <h1 className="mt-4 text-4xl font-semibold tracking-tight text-[#14221F] sm:text-5xl">
+          {q ? 'Here is what we found.' : 'Premium residential, office, and commercial cleaning.'}
+        </h1>
+        <p className="mt-6 text-lg leading-8 text-[#60716D]">
+          {q
+            ? `Displaying ${services.length} services matching your search.`
+            : 'Every service is tailored to meet your property, schedule, and standard of care, including dedicated office cleaning services.'}
+        </p>
       </div>
-      <div className="mt-12 grid gap-8 lg:grid-cols-2">
-        {(services as ServiceRow[]).map((service, index) => (
-          <AnimatedSection key={service.id} delay={index * 0.06}>
-            <article className="overflow-hidden rounded-[2rem] border border-[#DCE5E1] bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-[0_18px_40px_rgba(15,91,79,0.12)]">
-            <img
-              src={getServiceImage(service.name) ?? (service.image_url?.trim() ? service.image_url : fallbackServiceImages[index % fallbackServiceImages.length])}
-              alt={service.name}
-              className="h-64 w-full object-cover"
-            />
-            <div className="p-8">
-              <h2 className="text-2xl font-semibold text-[#14221F]">{service.name}</h2>
-              <p className="mt-4 text-base leading-8 text-[#60716D]">{service.description ?? service.short_description}</p>
-              <div className="mt-6 flex flex-wrap gap-3">
-                <span className="rounded-full bg-[#DFEEE8] px-3 py-1 text-sm font-medium text-[#0F5B4F]">Flexible scheduling</span>
-                <span className="rounded-full bg-[#DFEEE8] px-3 py-1 text-sm font-medium text-[#0F5B4F]">Professional results</span>
-              </div>
-              <Button asChild className="mt-8 inline-flex rounded-full bg-[#0F5B4F] px-6 text-white hover:bg-[#093D35] whitespace-nowrap">
-                <Link href="/quote" className="inline-flex items-center gap-2 whitespace-nowrap">Request this service <ArrowRight className="h-4 w-4" /></Link>
-              </Button>
-            </div>
-          </article>
-          </AnimatedSection>
-        ))}
-      </div>
+      {services.length === 0 ? (
+        <div className="mt-12 rounded-[2rem] border border-[#DCE5E1] bg-white p-12 text-center">
+          <p className="text-lg text-[#60716D]">No services found matching &ldquo;{resolvedParams?.q}&rdquo;.</p>
+          <Link
+            href="/services"
+            className="mt-6 inline-flex rounded-full bg-[#0F5B4F] px-6 py-3 text-white hover:bg-[#093D35]"
+          >
+            View All Services
+          </Link>
+        </div>
+      ) : (
+        <div className="mt-12 grid gap-8 lg:grid-cols-2">
+          {services.map((service, index) => (
+            <AnimatedSection key={service.id} delay={index * 0.06}>
+              <ServiceCard
+                id={service.id}
+                name={getServiceName(service)}
+                description={getServiceDescription(service)}
+                image_url={getServiceImage(getServiceName(service)) ?? service.image_url}
+                slug={service.slug}
+                fallbackImage={fallbackServiceImages[index % fallbackServiceImages.length]}
+              />
+            </AnimatedSection>
+          ))}
+        </div>
+      )}
     </main>
   )
 }

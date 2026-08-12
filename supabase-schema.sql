@@ -26,6 +26,7 @@ create table if not exists service_areas (
   name text not null,
   slug text unique not null,
   description text,
+  image_url text,
   is_active bool default true,
   display_order int4 default 99,
   created_at timestamptz default now(),
@@ -68,7 +69,8 @@ create table if not exists contact_messages (
   email text not null,
   phone text,
   message text not null,
-  status text default 'new',
+  status text default 'new' check (status in ('new', 'opened', 'replied')),
+  reply_text text,
   created_at timestamptz default now(),
   updated_at timestamptz default now()
 );
@@ -149,3 +151,13 @@ insert into site_settings (key, value) values
 ('hero_description', 'Professional cleaning for homes and businesses across Abbotsford and the Fraser Valley.'),
 ('service_area', 'Abbotsford & surrounding Fraser Valley areas')
 on conflict (key) do nothing;
+
+-- Create storage bucket for about page videos
+insert into storage.buckets (id, name, public)
+values ('about-videos', 'about-videos', true)
+on conflict (id) do nothing;
+
+-- Ensure contact_messages has reply_text column
+alter table contact_messages add column if not exists reply_text text;
+
+

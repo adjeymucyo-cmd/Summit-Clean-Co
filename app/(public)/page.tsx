@@ -2,8 +2,12 @@ import Link from 'next/link'
 import { ArrowRight, PhoneCall, ShieldCheck, Sparkles, MapPin } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { AnimatedSection } from '@/components/site/animated-section'
+import { LoginStatusBanner } from '@/components/site/login-status-banner'
+import { TestimonialCard } from '@/components/site/testimonial-card'
 import { getServices, getTestimonials, getSiteSettings } from '@/lib/supabase/data'
 import type { ServiceRow, TestimonialRow, SiteSettingRow } from '@/lib/types'
+import { createClient } from '@/lib/supabase/client'
+import { cookies } from 'next/headers'
 
 function SectionHeading({ eyebrow, title, description }: { eyebrow: string; title: string; description: string }) {
   return (
@@ -50,23 +54,22 @@ export default async function HomePage() {
         <div className="absolute right-0 top-1/3 h-80 w-80 rounded-full bg-[#0F5B4F]/15 blur-3xl" />
         <div className="relative mx-auto grid max-w-7xl gap-12 px-4 py-24 sm:px-6 lg:grid-cols-[1.1fr_0.9fr] lg:px-8 lg:py-32">
           <div className="max-w-2xl">
-            <p className="text-sm font-semibold uppercase tracking-[0.35em] text-[#DFEEE8]">Residential & commercial cleaning</p>
+            <p className="text-sm font-semibold uppercase tracking-[0.35em] text-[#DFEEE8]">Residential, office & commercial cleaning</p>
             <h1 className="mt-6 text-4xl font-semibold leading-tight sm:text-5xl lg:text-6xl">A cleaner space that feels calm, polished, and inviting.</h1>
-            <p className="mt-6 text-lg leading-8 text-[#DFEEE8]">{site.hero_description ?? 'Professional, reliable cleaning services for homes, offices, and commercial spaces across Abbotsford and the Fraser Valley.'}</p>
+            <p className="mt-6 text-lg leading-8 text-[#DFEEE8]">{site.hero_description ?? 'Professional, reliable cleaning services for homes, offices, kitchens, rooms, and commercial spaces across Abbotsford and the Fraser Valley.'}</p>
 
             
 
             <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-              <Button asChild variant="glow" size="lg" className="rounded-full px-6 shadow-lg shadow-[#E7C858]/20">
-                <Link href="/quote">Get a Free Quote</Link>
-              </Button>
-              <Button asChild variant="outline" size="lg" className="rounded-full border-white/30 bg-white/10 px-6 text-white hover:bg-white/20">
-                <a href="tel:+17785483365" className="flex items-center gap-2">
-                  <PhoneCall className="h-4 w-4" />
-                  <span>Call 778-548-3365</span>
-                </a>
-              </Button>
+              <Link href="/quote" className="inline-flex items-center justify-center rounded-full bg-[#E7C858] px-6 py-3 text-[#14221F] shadow-lg shadow-[#E7C858]/20 transition hover:bg-[#e0c04d]">
+                Get a Free Quote
+              </Link>
+              <a href="tel:+17785483365" className="inline-flex items-center justify-center rounded-full border border-white/30 bg-white/10 px-6 py-3 text-white transition hover:bg-white/20">
+                <PhoneCall className="h-4 w-4" />
+                <span>Call 778-548-3365</span>
+              </a>
             </div>
+            <LoginStatusBanner />
             <div className="mt-10 grid gap-4 sm:grid-cols-3">
               {[
                 ['Trusted', '150+ happy local clients'],
@@ -127,10 +130,17 @@ export default async function HomePage() {
                 <div className="p-6">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-semibold text-[#0F5B4F]">0{index + 1}</span>
-                    <ArrowRight className="h-4 w-4 text-[#C6A76B]" />
                   </div>
                   <h3 className="mt-4 text-xl font-semibold text-[#14221F]">{service.name}</h3>
                   <p className="mt-3 text-sm leading-7 text-[#60716D]">{service.short_description ?? service.description}</p>
+                  <div className="mt-5 pt-4 border-t border-[#DCE5E1]/60 flex items-center justify-between">
+                    <Link href={`/services/${service.slug}`} className="text-sm font-semibold text-[#0F5B4F] hover:text-[#093D35] hover:underline">
+                      View Details
+                    </Link>
+                    <Link href={`/services/${service.slug}`} className="text-[#C6A76B] hover:text-[#0F5B4F] transition-colors">
+                      <ArrowRight className="h-4 w-4" />
+                    </Link>
+                  </div>
                 </div>
               </article>
             </AnimatedSection>
@@ -164,14 +174,7 @@ export default async function HomePage() {
         <div className="mt-12 grid gap-6 lg:grid-cols-3">
           {(testimonials as TestimonialRow[]).map((testimonial, index) => (
             <AnimatedSection key={testimonial.id} delay={index * 0.08}>
-                <article className="rounded-[1.5rem] border border-[#DCE5E1] bg-[#F5F7F2] p-8 transition duration-300 hover:-translate-y-1 hover:shadow-[0_14px_32px_rgba(15,91,79,0.08)]">
-                <div className="flex gap-1 text-[#C6A76B]">{'★'.repeat(testimonial.rating)}</div>
-                <p className="mt-4 text-sm leading-7 text-[#60716D]">“{testimonial.review}”</p>
-                <div className="mt-6">
-                  <p className="font-semibold text-[#14221F]">{testimonial.customer_name}</p>
-                  <p className="text-sm text-[#60716D]">{testimonial.location ?? 'Fraser Valley'}</p>
-                </div>
-              </article>
+              <TestimonialCard testimonial={testimonial} />
             </AnimatedSection>
           ))}
         </div>

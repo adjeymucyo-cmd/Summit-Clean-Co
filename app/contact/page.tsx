@@ -23,7 +23,7 @@ export default function ContactPage() {
           <AnimatedSection>
           <div className="overflow-hidden rounded-[2rem] bg-white">
             <img
-              src="/images/revitalize-spring.jpg"
+              src="/images/revitalize-spring.jpg" 
               alt="Cleaning professional carrying supplies"
               className="h-72 w-full object-cover"
             />

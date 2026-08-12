@@ -117,6 +117,37 @@
   --sidebar-ring: #4a8b79;
 }
 
+.dark body {
+  background-color: #000 !important;
+  color: #f3faf5 !important;
+  background-image: none !important;
+}
+
+.dark [class*="bg-white"] {
+  background-color: #0a0a0a !important;
+  background-image: none !important;
+}
+
+.dark :is(.bg-white, .bg-white\/95, .bg-white\/90, .bg-white\/10, .bg-white\/0, .bg-[#F5F7F2], .bg-[#DFEEE8], .bg-[#EAFDF8], .bg-[#FDF3F2], .bg-[#F8FBF6]) {
+  background-color: #0a0a0a !important;
+  color: #f3faf5 !important;
+}
+
+.dark :is(.border-[#DCE5E1], .border-white, .border-white\/10, .border-white\/15) {
+  border-color: rgba(255,255,255,0.12) !important;
+}
+
+.dark :is(.text-[#14221F], .text-[#0f3d35], .text-[#60716D], .text-[#0F5B4F]) {
+  color: #f3faf5 !important;
+}
+
+.dark .shadow-sm,
+.dark .shadow-[0_14px_30px_rgba(15,91,79,0.08)],
+.dark .shadow-[0_18px_40px_rgba(15,91,79,0.08)],
+.dark .shadow-[0_20px_50px_rgba(31,119,104,0.08)] {
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35) !important;
+}
+
 @media (prefers-color-scheme: dark) {
   :root:not(.light) {
     color-scheme: dark;

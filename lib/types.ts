@@ -16,6 +16,7 @@ export type ServiceAreaRow = {
   name: string
   slug: string
   description: string | null
+  image_url: string | null
   is_active: boolean
   display_order: number | null
   created_at: string
@@ -57,3 +58,16 @@ export type SiteSettingRow = {
   value: string | null
   updated_at: string
 }
+
+export type ContactMessageRow = {
+  id: string
+  name: string
+  email: string
+  phone: string | null
+  message: string
+  status: 'new' | 'opened' | 'replied'
+  reply_text: string | null
+  created_at: string
+  updated_at: string
+}
+

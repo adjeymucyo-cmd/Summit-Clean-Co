@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
-import { createContactMessage } from '@/lib/supabase/actions'
+import { createContactMessageWithDiagnostics } from '@/lib/supabase/contact-actions'
 
 const schema = z.object({
   name: z.string().min(2, 'Please enter your name.'),
@@ -23,22 +23,36 @@ export function ContactForm() {
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const { register, handleSubmit, formState: { errors } } = useForm<FormValues>({ resolver: zodResolver(schema) })
+  const { register, handleSubmit, formState: { errors }, reset } = useForm<FormValues>({ resolver: zodResolver(schema) })
 
   async function onSubmit(values: FormValues) {
     setIsSubmitting(true)
     setError(null)
-    const result = await createContactMessage({
+    
+    console.log('[CONTACT-FORM] Submitting message:', {
+      name: values.name,
+      email: values.email,
+      hasPhone: !!values.phone,
+      messageLength: values.message.length,
+    })
+
+    const result = await createContactMessageWithDiagnostics({
       name: values.name,
       email: values.email,
       phone: values.phone || undefined,
       message: values.message,
     })
+    
     setIsSubmitting(false)
+
+    console.log('[CONTACT-FORM] Response:', result)
+
     if (result.success) {
       setSubmitted(true)
+      reset()
       return
     }
+
     setError(result.error ?? 'Unable to send your message right now.')
   }
 

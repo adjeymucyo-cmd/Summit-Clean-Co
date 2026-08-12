@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body{
+            display: flex;
+            justify-content: center;
+      
+
+            
+            
+        }
+        form input {
+         
+            width: 200px;
+            height: 25px;
+            text-align: center;
+        }
+
+        button {
+            width: 200px;
+            height: 40px;
+            border-radius: 20px;
+            color: rgb(245, 243, 243);
+            border: none;
+            background-color: rgb(49, 114, 199);
+        }
+        form{
+            display: flex;
+            flex-direction: column;
+            border: 2px  solid gray;
+             width: 300px;
+            height: 550px;
+            padding-left:60px;
+            box-shadow: 4px 1px 1px gray
+        
+            
+
+        }
+    </style>
+</head>
+
+<body>
+    <form>
+        <h1> STUDENT GRADE</h1>
+        <label>Student name</label>
+        <input type="text"><br>
+        <label> mathematics</label>
+        <input type="number" id="math" min="0" max="100"><br>
+        <label>physics</label>
+        <input type="number" id="physic" min="0" max="100"><br>
+        <label> english</label>
+        <input type="number" id="eng" min="0" max="100"><br>
+        <label>chemistry</label>
+        <input type="number" id="chem" min="0" max="100"><br>
+        <label>database</label>
+        <input type="number" id="data" min="0" max="100"><br><br>
+        <button onclick="calaculate()">calaculate</button>
+    </form>
+    <script>
+        function calaculate() {
+            let mathematics = Number(document.getElementById("math").value)
+            let physics = Number(document.getElementById("physic").value)
+            let english = Number(document.getElementById("eng").value)
+            let chemistry = Number(document.getElementById("chem").value)
+            let database = Number(document.getElementById("data").value)
+            let avg = (mathematics + physics + english + chemistry + database) / 5;
+            
+            if (avg >= 80 && avg <= 100) {
+                alert("grade A");
+            }
+            else if (avg >= 70 && avg < 80) {
+                alert("grade B")
+            }
+            else if (avg >= 60 && avg < 70) {
+                alert("grade c")
+            }
+            else if (avg >= 50 && avg < 60) {
+                alert("grade D")
+            }
+            else if (avg >= 0 && avg < 50) {
+                alert("grade F")
+            }
+            else {
+                alert("Invalid number")
+            }
+        }
+
+    </script>
+</body>
+
+</html>

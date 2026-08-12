@@ -1,4 +1,5 @@
 import { getSiteSettings } from '@/lib/supabase/data'
+import { AdminSettingsManager } from '@/components/admin/admin-settings-manager'
 
 export const metadata = {
   title: 'Settings | Summit Clean Co. Admin',
@@ -13,13 +14,12 @@ export default async function AdminSettingsPage() {
       <div className="rounded-[2rem] border border-[#DCE5E1] bg-white p-8 shadow-sm">
         <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[#0F5B4F]">Settings</p>
         <h1 className="mt-2 text-3xl font-semibold text-[#14221F]">Business settings</h1>
-        <div className="mt-8 grid gap-4 md:grid-cols-2">
-          {settings.map((setting) => (
-            <div key={setting.key} className="rounded-[1.25rem] border border-[#DCE5E1] p-5">
-              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#0F5B4F]">{setting.key}</p>
-              <p className="mt-3 text-sm leading-7 text-[#60716D]">{setting.value ?? 'No value yet.'}</p>
-            </div>
-          ))}
+        <p className="mt-3 text-sm leading-7 text-[#60716D] max-w-3xl">
+          Update company details, hero copy, and service area information that appears across the website.
+        </p>
+
+        <div className="mt-8">
+          <AdminSettingsManager initialSettings={settings} />
         </div>
       </div>
     </main>
