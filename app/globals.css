@@ -123,6 +123,10 @@
   background-image: none !important;
 }
 
+.dark div {
+  background-image: none !important;
+}
+
 .dark [class*="bg-white"] {
   background-color: #0a0a0a !important;
   background-image: none !important;

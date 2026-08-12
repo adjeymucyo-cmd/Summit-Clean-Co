@@ -33,7 +33,14 @@ export default function LoginPage() {
     setLoading(false)
 
     if (error) {
-      setError('invalid input')
+      // Check if it's a rate limit error
+      if (error.message?.includes('rate') || error.message?.includes('too many')) {
+        setError('Too many login attempts. Please try again later.')
+      } else if (error.message?.includes('Invalid') || error.message?.includes('invalid')) {
+        setError('Invalid credentials. Please check your email and password. If you do not have an account, please sign up.')
+      } else {
+        setError(error.message || 'Failed to sign in. Please check your credentials and try again.')
+      }
       return
     }
 

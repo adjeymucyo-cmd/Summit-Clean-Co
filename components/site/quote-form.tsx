@@ -91,28 +91,28 @@ export function QuoteForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-full rounded-2xl sm:rounded-[2rem] border border-black bg-[#F3FCF5] p-3 sm:p-4 md:p-6 lg:p-8 shadow-sm">
-      <div className="grid gap-3 sm:gap-4 md:grid-cols-2">
-        <div>
+    <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-full rounded-none sm:rounded-2xl md:rounded-[2rem] border-none sm:border border-black bg-transparent sm:bg-[#F3FCF5] p-3 sm:p-4 md:p-6 lg:p-8 shadow-none sm:shadow-sm">
+      <div className="grid gap-2 sm:gap-3 md:gap-4 grid-cols-1 md:grid-cols-2">
+        <div className="w-full">
           <Label htmlFor="full_name" className="text-xs sm:text-sm">Full name</Label>
-          <Input id="full_name" {...register('full_name')} className="mt-1 sm:mt-2 border-black bg-white h-9 sm:h-10 text-sm px-3" />
+          <Input id="full_name" {...register('full_name')} className="w-full mt-1 sm:mt-2 border border-black bg-white h-10 sm:h-11 text-sm px-3" />
           {errors.full_name && <p className="mt-1 text-xs sm:text-sm text-[#b42318]">{errors.full_name.message}</p>}
         </div>
-        <div>
+        <div className="w-full">
           <Label htmlFor="email" className="text-xs sm:text-sm">Email</Label>
-          <Input id="email" type="email" {...register('email')} className="mt-1 sm:mt-2 border-black bg-white h-9 sm:h-10 text-sm px-3" />
+          <Input id="email" type="email" {...register('email')} className="w-full mt-1 sm:mt-2 border border-black bg-white h-10 sm:h-11 text-sm px-3" />
           {errors.email && <p className="mt-1 text-xs sm:text-sm text-[#b42318]">{errors.email.message}</p>}
         </div>
-        <div>
+        <div className="w-full">
           <Label htmlFor="phone" className="text-xs sm:text-sm">Phone</Label>
-          <Input id="phone" {...register('phone')} className="mt-1 sm:mt-2 border-black bg-white h-9 sm:h-10 text-sm px-3" />
+          <Input id="phone" {...register('phone')} className="w-full mt-1 sm:mt-2 border border-black bg-white h-10 sm:h-11 text-sm px-3" />
         </div>
-        <div>
+        <div className="w-full">
           <Label htmlFor="service_id" className="text-xs sm:text-sm">Service needed</Label>
           <select
             id="service_id"
             {...register('service_id')}
-            className="mt-1 sm:mt-2 w-full rounded-lg border border-black bg-white px-2.5 py-2 sm:py-2 text-xs sm:text-sm outline-none h-9 sm:h-10"
+            className="w-full mt-1 sm:mt-2 rounded-lg border border-black bg-white px-3 py-2 text-xs sm:text-sm outline-none h-10 sm:h-11"
           >
             <option value="">Select a service</option>
             {serviceOptions.map((option) => (
@@ -123,12 +123,12 @@ export function QuoteForm() {
           </select>
           {errors.service_id && <p className="mt-1 text-xs sm:text-sm text-[#b42318]">{errors.service_id.message}</p>}
         </div>
-        <div>
+        <div className="w-full">
           <Label htmlFor="property_type" className="text-xs sm:text-sm">Property type</Label>
           <select
             id="property_type"
             {...register('property_type')}
-            className="mt-1 sm:mt-2 w-full rounded-lg border border-black bg-white px-2.5 py-2 sm:py-2 text-xs sm:text-sm outline-none h-9 sm:h-10"
+            className="w-full mt-1 sm:mt-2 rounded-lg border border-black bg-white px-3 py-2 text-xs sm:text-sm outline-none h-10 sm:h-11"
           >
             <option value="">Select a property type</option>
             <option value="Office">Office</option>
@@ -143,41 +143,41 @@ export function QuoteForm() {
           {errors.property_type && <p className="mt-1 text-xs sm:text-sm text-[#b42318]">{errors.property_type.message}</p>}
         </div>
         {watch('property_type') === 'Other' && (
-          <div>
+          <div className="w-full">
             <Label htmlFor="other_property_type" className="text-xs sm:text-sm">Other property type</Label>
             <Input
               id="other_property_type"
               {...register('other_property_type')}
-              className="mt-1 sm:mt-2 border-black bg-white h-9 sm:h-10 text-sm px-3"
+              className="w-full mt-1 sm:mt-2 border border-black bg-white h-10 sm:h-11 text-sm px-3"
               placeholder="Describe your property type"
             />
             {errors.other_property_type && <p className="mt-1 text-xs sm:text-sm text-[#b42318]">{errors.other_property_type.message}</p>}
           </div>
         )}
-        <div>
+        <div className="w-full">
           <Label htmlFor="preferred_date" className="text-xs sm:text-sm">Preferred date</Label>
-          <Input id="preferred_date" type="date" {...register('preferred_date')} className="mt-1 sm:mt-2 border-black bg-white h-9 sm:h-10 text-sm px-3" />
+          <Input id="preferred_date" type="date" {...register('preferred_date')} className="w-full mt-1 sm:mt-2 border border-black bg-white h-10 sm:h-11 text-sm px-3" />
         </div>
-        <div>
+        <div className="w-full">
           <Label htmlFor="preferred_contact" className="text-xs sm:text-sm">Preferred contact</Label>
-          <Input id="preferred_contact" {...register('preferred_contact')} className="mt-1 sm:mt-2 border-black bg-white h-9 sm:h-10 text-sm px-3" />
+          <Input id="preferred_contact" {...register('preferred_contact')} className="w-full mt-1 sm:mt-2 border border-black bg-white h-10 sm:h-11 text-sm px-3" />
           {errors.preferred_contact && <p className="mt-1 text-xs sm:text-sm text-[#b42318]">{errors.preferred_contact.message}</p>}
         </div>
-        <div>
+        <div className="w-full">
           <Label htmlFor="address" className="text-xs sm:text-sm">Address / area</Label>
-          <Input id="address" {...register('address')} className="mt-1 sm:mt-2 border-black bg-white h-9 sm:h-10 text-sm px-3" />
+          <Input id="address" {...register('address')} className="w-full mt-1 sm:mt-2 border border-black bg-white h-10 sm:h-11 text-sm px-3" />
         </div>
-        <div>
+        <div className="w-full">
           <Label htmlFor="property_size" className="text-xs sm:text-sm">Approximate property size</Label>
-          <Input id="property_size" {...register('property_size')} className="mt-1 sm:mt-2 border-black bg-white h-9 sm:h-10 text-sm px-3" />
+          <Input id="property_size" {...register('property_size')} className="w-full mt-1 sm:mt-2 border border-black bg-white h-10 sm:h-11 text-sm px-3" />
         </div>
-        <div>
+        <div className="w-full">
           <Label htmlFor="frequency" className="text-xs sm:text-sm">Frequency</Label>
-          <Input id="frequency" {...register('frequency')} className="mt-1 sm:mt-2 border-black bg-white h-9 sm:h-10 text-sm px-3" />
+          <Input id="frequency" {...register('frequency')} className="w-full mt-1 sm:mt-2 border border-black bg-white h-10 sm:h-11 text-sm px-3" />
         </div>
-        <div className="md:col-span-2">
+        <div className="w-full md:col-span-2">
           <Label htmlFor="details" className="text-xs sm:text-sm">Additional details</Label>
-          <Textarea id="details" rows={3} {...register('details')} className="mt-1 sm:mt-2 border-black bg-white text-sm px-3 py-2" />
+          <Textarea id="details" rows={3} {...register('details')} className="w-full mt-1 sm:mt-2 border border-black bg-white text-sm px-3 py-2" />
         </div>
       </div>
       {submitted && <p className="mt-4 sm:mt-6 rounded-xl bg-[#DFEEE8] p-2 sm:p-3 text-xs sm:text-sm text-[#0F5B4F]">Thanks! Your quote request has been received. We'll get back to you soon.</p>}

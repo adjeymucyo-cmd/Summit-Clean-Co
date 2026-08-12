@@ -9,7 +9,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const isAdminRoute = pathname?.startsWith('/admin') ?? false
 
   return (
-    <div className="page-fade-in min-h-screen bg-[radial-gradient(circle_at_top,_rgba(31,119,104,0.22),transparent_24%),linear-gradient(180deg,#e8fbf0_0%,#d3f1df_100%)] text-[#0f3d35] selection:bg-[#bfe7d9] selection:text-[#0f3d35]">
+    <div className="page-fade-in min-h-screen bg-[radial-gradient(circle_at_top,_rgba(31,119,104,0.22),transparent_24%),linear-gradient(180deg,#e8fbf0_0%,#d3f1df_100%)] text-[#0f3d35] selection:bg-[#bfe7d9] selection:text-[#0f3d35] dark:bg-black dark:text-white dark:bg-none dark:selection:bg-[#0F5B4F] dark:selection:text-white">
       {!isAdminRoute && <Navbar />}
       {children}
       {!isAdminRoute && <Footer />}

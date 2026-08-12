@@ -2,8 +2,11 @@ create extension if not exists "uuid-ossp";
 
 create table if not exists profiles (
   id uuid primary key references auth.users(id),
+  username text unique,
   full_name text,
-  role text,
+  email text,
+  phone text,
+  role text default 'user',
   created_at timestamptz default now(),
   updated_at timestamptz default now()
 );
@@ -75,6 +78,21 @@ create table if not exists contact_messages (
   created_at timestamptz default now(),
   updated_at timestamptz default now()
 );
+
+-- Enable RLS on profiles table
+alter table profiles enable row level security;
+
+-- Allow users to read their own profile
+create policy "Users can read own profile" on profiles for select using (auth.uid() = id);
+
+-- Allow users to update their own profile
+create policy "Users can update own profile" on profiles for update using (auth.uid() = id);
+
+-- Allow anyone to insert their own profile after signup
+create policy "Users can create own profile" on profiles for insert with check (auth.uid() = id);
+
+-- Service role can do anything for admin operations
+create policy "Service role bypass" on profiles using (auth.role() = 'service_role');
 
 create table if not exists site_settings (
   key text primary key,

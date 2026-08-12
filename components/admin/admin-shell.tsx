@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { FileText, LayoutDashboard, LogOut, MessageSquare, Settings, Sparkles, Star, Mail } from 'lucide-react'
+import { FileText, LayoutDashboard, LogOut, MessageSquare, Settings, Sparkles, Star } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 const links = [
@@ -11,7 +11,6 @@ const links = [
   { href: '/admin/services', label: 'Services', icon: Sparkles },
   { href: '/admin/testimonials', label: 'Testimonials', icon: Star },
   { href: '/admin/service-areas', label: 'Service Areas', icon: MessageSquare },
-  { href: '/admin/messages', label: 'Messages', icon: Mail },
   { href: '/admin/settings', label: 'Settings', icon: Settings },
 ]
 
