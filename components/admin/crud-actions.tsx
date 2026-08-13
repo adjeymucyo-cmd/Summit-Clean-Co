@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
-import { Edit3, Mail, Save, Upload, Trash2 } from 'lucide-react'
+import { Edit3, Mail, Save, Upload, Trash2, Inbox } from 'lucide-react'
 import { FileUpload } from '@/components/site/file-upload'
 import { insertService, deleteService, updateService, insertServiceArea, updateServiceArea, insertTestimonial, updateTestimonial, deleteTestimonial, updateQuoteStatus, updateQuoteNotes, updateQuoteDetails, uploadServiceAreaImage, uploadServiceImage, deleteQuoteRequest, deleteServiceArea } from '@/lib/supabase/admin-actions'
 
@@ -575,11 +575,13 @@ export function TestimonialManager({ initialTestimonials }: { initialTestimonial
   )
 }
 
-export function QuoteManager({ initialQuotes }: { initialQuotes: Array<{ id: string; full_name: string; email: string; phone?: string | null; details?: string | null; status: string; admin_notes?: string | null }> }) {
+export function QuoteManager({ initialQuotes }: { initialQuotes: Array<{ id: string; full_name: string; email: string; phone?: string | null; details?: string | null; status: string; admin_notes?: string | null; service_id?: string | null; property_type?: string | null; preferred_date?: string | null; preferred_contact?: string | null; address?: string | null; property_size?: string | null; frequency?: string | null; created_at?: string }> }) {
   const [quotes, setQuotes] = useState(initialQuotes)
   const [pending, startTransition] = useTransition()
-  const [editingQuoteId, setEditingQuoteId] = useState<string | null>(null)
-  const [editingDetails, setEditingDetails] = useState('')
+  const [selectedQuoteId, setSelectedQuoteId] = useState<string | null>(null)
+  const [replyText, setReplyText] = useState('')
+
+  const selectedQuote = quotes.find(q => q.id === selectedQuoteId)
 
   async function updateStatus(id: string, status: string) {
     startTransition(async () => {
@@ -599,118 +601,294 @@ export function QuoteManager({ initialQuotes }: { initialQuotes: Array<{ id: str
     })
   }
 
-  async function updateDetails(id: string, details: string) {
-    startTransition(async () => {
-      const result = await updateQuoteDetails(id, details)
-      if (result.success) {
-        setQuotes((current) => current.map((quote) => quote.id === id ? { ...quote, details } : quote))
-        setEditingQuoteId(null)
-      }
-    })
-  }
-
   async function deleteQuote(id: string) {
     if (!confirm('Are you sure you want to delete this quote request?')) return
     startTransition(async () => {
       const result = await deleteQuoteRequest(id)
       if (result.success) {
         setQuotes((current) => current.filter((quote) => quote.id !== id))
+        setSelectedQuoteId(null)
       } else {
         alert(result.error || 'Failed to delete quote request.')
       }
     })
   }
 
-  const getMailtoLink = (quote: { full_name: string; email: string; details?: string | null }) => {
-    const subject = encodeURIComponent('Summit Clean Co. - Quote confirmation')
-    const body = encodeURIComponent(
-      `Hi ${quote.full_name}, Thank you for your quote request. We are confirming that we received your request and will follow up shortly. Quote details: ${quote.details ?? 'No details provided.'} Best regards, Summit Clean Co.`
-    )
-    return `mailto:${quote.email}?subject=${subject}&body=${body}`
+  const sendReply = () => {
+    if (!selectedQuote || !replyText.trim()) return
+
+    const subject = encodeURIComponent('Re: Your Quote Request - Summit Clean Co.')
+    const body = encodeURIComponent(replyText)
+    const mailtoLink = `mailto:${selectedQuote.email}?subject=${subject}&body=${body}`
+    
+    window.location.href = mailtoLink
+    setReplyText('')
   }
 
-  const startEditing = (quote: { id: string; details?: string | null }) => {
-    setEditingQuoteId(quote.id)
-    setEditingDetails(quote.details ?? '')
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'new':
+        return 'bg-blue-100 text-blue-700 border-blue-200'
+      case 'booked':
+        return 'bg-purple-100 text-purple-700 border-purple-200'
+      case 'completed':
+        return 'bg-green-100 text-green-700 border-green-200'
+      default:
+        return 'bg-gray-100 text-gray-700 border-gray-200'
+    }
   }
 
-  const cancelEditing = () => {
-    setEditingQuoteId(null)
-    setEditingDetails('')
-  }
+  const isNew = (quote: typeof quotes[0]) => quote.status === 'new'
 
-  return (
-    <div className="space-y-4">
-      {quotes.map((quote) => (
-        <div key={quote.id} className="rounded-[1.25rem] border border-[#DCE5E1] p-5">
-          <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
-            <div>
-              <p className="font-semibold text-[#14221F]">{quote.full_name}</p>
-              <p className="text-sm text-[#60716D]">{quote.email}</p>
-              {quote.phone && <p className="text-sm text-[#60716D]">{quote.phone}</p>}
-            </div>
-            <div className="flex items-center gap-2">
-              <select value={quote.status} onChange={(event) => updateStatus(quote.id, event.target.value)} className="rounded-full border border-[#DCE5E1] bg-white px-3 py-2 text-sm text-[#14221F]" disabled={pending}>
-                <option value="new">New</option>
-                <option value="booked">Booked</option>
-                <option value="completed">Completed</option>
-              </select>
-              <button
-                type="button"
-                onClick={() => deleteQuote(quote.id)}
-                disabled={pending}
-                className="rounded-full border border-red-200 bg-white p-2 text-red-600 transition hover:border-red-500 hover:bg-red-50"
-                title="Delete quote request"
-              >
-                <Trash2 className="h-4 w-4" />
-              </button>
+  if (selectedQuote) {
+    return (
+      <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4 overflow-y-auto">
+        <div className="relative w-full max-w-4xl bg-white rounded-3xl shadow-2xl my-8">
+          {/* Close Button */}
+          <button
+            onClick={() => {
+              setSelectedQuoteId(null)
+              setReplyText('')
+            }}
+            className="absolute right-6 top-6 z-10 inline-flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 transition"
+          >
+            ✕
+          </button>
+
+          {/* Header */}
+          <div className="border-b-4 border-[#0F5B4F] bg-gradient-to-r from-[#0F5B4F] via-[#1f7768] to-[#0D3D35] px-4 sm:px-8 py-6 text-white rounded-t-3xl">
+            <div className="flex items-start justify-between gap-3 mb-2">
+              <div>
+                <h2 className="text-2xl sm:text-3xl font-bold">{selectedQuote.full_name}</h2>
+                <p className="text-[#b8e0d9] text-xs sm:text-sm mt-1">Quote Request Details & Credentials</p>
+              </div>
+              <span className={`inline-flex items-center rounded-full border-2 px-3 py-1 text-xs font-bold uppercase tracking-wide ${getStatusColor(selectedQuote.status)} flex-shrink-0`}>
+                {selectedQuote.status}
+              </span>
             </div>
           </div>
-          <div className="mt-4">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-              <div className="flex-1">
-                <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[#0F5B4F] mb-2">Quote Details</p>
-                <p className="text-sm leading-7 text-[#60716D]">
-                  {quote.details ?? 'No additional details provided.'}
-                </p>
+
+          {/* Content */}
+          <div className="p-4 sm:p-8 space-y-6 max-h-[calc(100vh-380px)] overflow-y-auto">
+            
+            {/* Customer Credentials */}
+            <div>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="h-1.5 w-8 bg-gradient-to-r from-[#0F5B4F] to-[#1f7768]"></div>
+                <h3 className="text-lg font-bold text-[#0F5B4F] uppercase tracking-wide">Customer Information</h3>
               </div>
-              <button
-                type="button"
-                onClick={() => startEditing(quote)}
-                className="inline-flex items-center justify-center gap-2 rounded-full border border-[#0F5B4F] bg-white px-3 py-2 text-sm font-medium text-[#0F5B4F] transition hover:bg-[#DFEEE8] sm:whitespace-nowrap"
-                title="Edit quote details"
-              >
-                <Edit3 className="h-4 w-4" />
-                <span>Edit</span>
-              </button>
-            </div>
-            {editingQuoteId === quote.id && (
-              <div className="mt-4 space-y-3 rounded-[1.5rem] border border-[#DCE5E1] bg-[#F5F7F2] p-4">
-                <Label>Edit quote details</Label>
-                <Textarea value={editingDetails} onChange={(event) => setEditingDetails(event.target.value)} rows={5} placeholder="Enter quote details..." />
-                <div className="flex flex-wrap gap-2">
-                  <Button variant="outline" size="sm" onClick={cancelEditing} disabled={pending}>
-                    Cancel
-                  </Button>
-                  <Button size="sm" onClick={() => updateDetails(quote.id, editingDetails)} disabled={pending}>
-                    <Save className="mr-2 h-4 w-4" /> Save details
-                  </Button>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="rounded-xl border-2 border-[#DCE5E1] bg-gradient-to-br from-[#F5F7F2] to-white p-3 sm:p-4">
+                  <p className="text-xs uppercase text-[#60716D] font-bold tracking-wider mb-1">Full Name</p>
+                  <p className="text-base font-semibold text-[#0F5B4F]">{selectedQuote.full_name}</p>
+                </div>
+                <div className="rounded-xl border-2 border-[#DCE5E1] bg-gradient-to-br from-[#F5F7F2] to-white p-3 sm:p-4">
+                  <p className="text-xs uppercase text-[#60716D] font-bold tracking-wider mb-1">Email Address</p>
+                  <p className="text-base font-semibold text-[#0F5B4F] break-all">{selectedQuote.email}</p>
+                </div>
+                <div className="rounded-xl border-2 border-[#DCE5E1] bg-gradient-to-br from-[#F5F7F2] to-white p-3 sm:p-4">
+                  <p className="text-xs uppercase text-[#60716D] font-bold tracking-wider mb-1">Phone Number</p>
+                  <p className="text-base font-semibold text-[#0F5B4F]">{selectedQuote.phone || 'Not provided'}</p>
+                </div>
+                <div className="rounded-xl border-2 border-[#DCE5E1] bg-gradient-to-br from-[#F5F7F2] to-white p-3 sm:p-4">
+                  <p className="text-xs uppercase text-[#60716D] font-bold tracking-wider mb-1">Preferred Contact</p>
+                  <p className="text-base font-semibold text-[#0F5B4F]">{selectedQuote.preferred_contact || 'Not specified'}</p>
+                </div>
+                <div className="rounded-xl border-2 border-[#DCE5E1] bg-gradient-to-br from-[#F5F7F2] to-white p-3 sm:p-4">
+                  <p className="text-xs uppercase text-[#60716D] font-bold tracking-wider mb-1">Address / Area</p>
+                  <p className="text-base font-semibold text-[#0F5B4F]">{selectedQuote.address || 'Not provided'}</p>
+                </div>
+                <div className="rounded-xl border-2 border-[#DCE5E1] bg-gradient-to-br from-[#F5F7F2] to-white p-3 sm:p-4">
+                  <p className="text-xs uppercase text-[#60716D] font-bold tracking-wider mb-1">Request Date</p>
+                  <p className="text-base font-semibold text-[#0F5B4F]">{selectedQuote.created_at ? new Date(selectedQuote.created_at).toLocaleDateString() : 'Not available'}</p>
                 </div>
               </div>
-            )}
-          </div>
-          <div className="mt-4">
-            <Label>Admin notes</Label>
-            <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-end">
-              <Textarea defaultValue={quote.admin_notes ?? ''} onBlur={(event) => updateNote(quote.id, event.target.value)} className="flex-1" />
-              <a href={getMailtoLink(quote)} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-1.5 rounded-full bg-[#0F5B4F] px-3 py-2 text-sm font-medium text-white hover:bg-[#093D35] transition-colors whitespace-nowrap sm:px-4 sm:py-2.5">
-                <Mail className="h-3.5 w-3.5" />
-                <span>Send</span>
-              </a>
+            </div>
+
+            {/* Service Requirements */}
+            <div>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="h-1.5 w-8 bg-gradient-to-r from-[#0F5B4F] to-[#1f7768]"></div>
+                <h3 className="text-lg font-bold text-[#0F5B4F] uppercase tracking-wide">Service Requirements</h3>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="rounded-xl border-2 border-[#DCE5E1] bg-gradient-to-br from-[#F5F7F2] to-white p-3 sm:p-4">
+                  <p className="text-xs uppercase text-[#60716D] font-bold tracking-wider mb-1">Service Type</p>
+                  <p className="text-base font-semibold text-[#0F5B4F]">{selectedQuote.service_id || 'Not selected'}</p>
+                </div>
+                <div className="rounded-xl border-2 border-[#DCE5E1] bg-gradient-to-br from-[#F5F7F2] to-white p-3 sm:p-4">
+                  <p className="text-xs uppercase text-[#60716D] font-bold tracking-wider mb-1">Property Type</p>
+                  <p className="text-base font-semibold text-[#0F5B4F]">{selectedQuote.property_type || 'Not specified'}</p>
+                </div>
+                <div className="rounded-xl border-2 border-[#DCE5E1] bg-gradient-to-br from-[#F5F7F2] to-white p-3 sm:p-4">
+                  <p className="text-xs uppercase text-[#60716D] font-bold tracking-wider mb-1">Property Size</p>
+                  <p className="text-base font-semibold text-[#0F5B4F]">{selectedQuote.property_size || 'Not provided'}</p>
+                </div>
+                <div className="rounded-xl border-2 border-[#DCE5E1] bg-gradient-to-br from-[#F5F7F2] to-white p-3 sm:p-4">
+                  <p className="text-xs uppercase text-[#60716D] font-bold tracking-wider mb-1">Frequency</p>
+                  <p className="text-base font-semibold text-[#0F5B4F]">{selectedQuote.frequency || 'Not specified'}</p>
+                </div>
+                <div className="rounded-xl border-2 border-[#DCE5E1] bg-gradient-to-br from-[#F5F7F2] to-white p-3 sm:p-4 md:col-span-2">
+                  <p className="text-xs uppercase text-[#60716D] font-bold tracking-wider mb-1">Preferred Date</p>
+                  <p className="text-base font-semibold text-[#0F5B4F]">{selectedQuote.preferred_date || 'Not specified'}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Customer Message */}
+            <div>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="h-1.5 w-8 bg-gradient-to-r from-[#0F5B4F] to-[#1f7768]"></div>
+                <h3 className="text-lg font-bold text-[#0F5B4F] uppercase tracking-wide">Customer Message</h3>
+              </div>
+              <div className="rounded-xl border-l-4 border-[#0F5B4F] bg-gradient-to-r from-[#F0FAF8] to-white p-4">
+                <p className="text-[#14221F] leading-6 whitespace-pre-wrap text-sm">
+                  {selectedQuote.details || 'No additional details provided.'}
+                </p>
+              </div>
+            </div>
+
+            {/* Admin Notes */}
+            <div>
+              <div className="flex items-center gap-3 mb-2">
+                <div className="h-1.5 w-8 bg-gradient-to-r from-[#0F5B4F] to-[#1f7768]"></div>
+                <h3 className="text-lg font-bold text-[#0F5B4F] uppercase tracking-wide">Admin Notes</h3>
+              </div>
+              <Textarea
+                defaultValue={selectedQuote.admin_notes ?? ''}
+                onBlur={(event) => updateNote(selectedQuote.id, event.target.value)}
+                placeholder="Add your internal notes here..."
+                rows={2}
+                className="rounded-xl border-2 border-[#DCE5E1] text-sm"
+              />
+            </div>
+
+            {/* Status Update */}
+            <div>
+              <div className="flex items-center gap-3 mb-2">
+                <div className="h-1.5 w-8 bg-gradient-to-r from-[#0F5B4F] to-[#1f7768]"></div>
+                <h3 className="text-lg font-bold text-[#0F5B4F] uppercase tracking-wide">Update Status</h3>
+              </div>
+              <select
+                value={selectedQuote.status}
+                onChange={(event) => updateStatus(selectedQuote.id, event.target.value)}
+                className="w-full rounded-xl border-2 border-[#DCE5E1] bg-white px-3 py-2 text-sm font-semibold text-[#14221F] hover:border-[#0F5B4F] transition"
+                disabled={pending}
+              >
+                <option value="new">📩 New</option>
+                <option value="booked">📅 Booked</option>
+                <option value="completed">✓ Completed</option>
+              </select>
+            </div>
+
+            {/* Compose Reply */}
+            <div>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="h-1.5 w-8 bg-gradient-to-r from-[#0F5B4F] to-[#1f7768]"></div>
+                <h3 className="text-lg sm:text-xl font-bold text-[#0F5B4F] uppercase tracking-wide">Compose Reply</h3>
+              </div>
+              <div className="space-y-2">
+                <Textarea
+                  value={replyText}
+                  onChange={(event) => setReplyText(event.target.value)}
+                  placeholder="Write your response to the customer here..."
+                  rows={4}
+                  className="rounded-2xl border-2 border-[#DCE5E1] text-sm"
+                />
+                <p className="text-xs text-[#60716D]">To: <span className="font-semibold text-[#0F5B4F]">{selectedQuote.email}</span></p>
+              </div>
             </div>
           </div>
+
+          {/* Action Buttons */}
+          <div className="border-t-4 border-[#0F5B4F] bg-gradient-to-r from-[#F5F7F2] to-white px-4 sm:px-6 py-4 flex flex-wrap gap-2 justify-end rounded-b-3xl">
+            <button
+              onClick={() => deleteQuote(selectedQuote.id)}
+              disabled={pending}
+              className="rounded-full border-2 border-red-300 bg-red-50 px-4 py-2 text-xs sm:text-sm font-semibold text-red-600 hover:border-red-500 hover:bg-red-100 transition"
+            >
+              Delete
+            </button>
+            <button
+              onClick={() => {
+                setSelectedQuoteId(null)
+                setReplyText('')
+              }}
+              className="rounded-full border-2 border-[#DCE5E1] bg-white px-4 py-2 text-xs sm:text-sm font-semibold text-[#14221F] hover:bg-[#F5F7F2] transition"
+            >
+              Close
+            </button>
+            <button
+              onClick={sendReply}
+              disabled={pending || !replyText.trim()}
+              className="rounded-full bg-gradient-to-r from-[#0F5B4F] to-[#1f7768] px-5 py-2 text-xs sm:text-sm font-semibold text-white hover:shadow-lg hover:from-[#093D35] hover:to-[#0F5B4F] transition disabled:opacity-50 flex items-center gap-1.5"
+            >
+              <Mail className="h-4 w-4" />
+              <span className="hidden sm:inline">Send Reply</span>
+              <span className="sm:hidden">Send</span>
+            </button>
+          </div>
         </div>
-      ))}
+      </div>
+    )
+  }
+
+  // List View
+  return (
+    <div className="space-y-4">
+      {quotes.length === 0 ? (
+        <div className="rounded-2xl border-2 border-dashed border-[#DCE5E1] bg-[#F5F7F2] p-12 text-center">
+          <Inbox className="mx-auto h-16 w-16 text-[#60716D]/30 mb-4" />
+          <p className="text-[#60716D] font-medium text-lg">No quote requests yet</p>
+          <p className="text-[#60716D] text-sm mt-1">Customer quotes will appear here</p>
+        </div>
+      ) : (
+        quotes.map((quote) => {
+          const isNew = quote.status === 'new'
+          return (
+            <button
+              key={quote.id}
+              onClick={() => setSelectedQuoteId(quote.id)}
+              className={`w-full text-left group rounded-2xl border-2 transition duration-300 p-5 sm:p-6 ${
+                isNew
+                  ? 'border-[#0F5B4F]/60 bg-gradient-to-r from-[#F0FAF8] to-white hover:border-[#0F5B4F] hover:shadow-lg'
+                  : 'border-[#DCE5E1] bg-white hover:border-[#0F5B4F] hover:shadow-md'
+              }`}
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-3 mb-2">
+                    {isNew && (
+                      <div className="flex-shrink-0">
+                        <div className="h-3 w-3 rounded-full bg-blue-500 animate-pulse"></div>
+                      </div>
+                    )}
+                    <h3 className="text-lg sm:text-xl font-bold text-[#14221F] truncate">{quote.full_name}</h3>
+                  </div>
+                  <p className="text-sm text-[#60716D] truncate">{quote.email}</p>
+                  <p className="text-xs text-[#60716D] mt-1">{quote.address || 'Address not provided'}</p>
+                </div>
+
+                <div className="flex-shrink-0 text-right">
+                  <span className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-bold uppercase tracking-wide ${getStatusColor(quote.status)}`}>
+                    {quote.status}
+                  </span>
+                </div>
+              </div>
+
+              {/* Message Preview */}
+              <div className="mt-3 text-sm text-[#60716D] line-clamp-2 group-hover:text-[#14221F] transition">
+                {quote.details || 'No additional details provided.'}
+              </div>
+
+              {/* Click to View Indicator */}
+              <div className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[#0F5B4F]">
+                Click to view full details & reply →
+              </div>
+            </button>
+          )
+        })
+      )}
     </div>
   )
 }
